@@ -14,6 +14,7 @@ export function Navbar({ onStartScan }: NavbarProps) {
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
     navigate('/login');
   };
 

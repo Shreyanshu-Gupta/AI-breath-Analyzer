@@ -1,18 +1,34 @@
+import React, { useState, useEffect } from 'react';
 import { Activity, Clock, ShieldCheck, Wind } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function Dashboard() {
-  const history = [
-    { date: 'Today, 10:45 AM', prediction: 'Healthy Profile', severity: 'low', values: { spo2: 98, hr: 72 } },
-    { date: 'Yesterday, 02:15 PM', prediction: 'Mild Irregularity Detected (VOC elevated)', severity: 'warning', values: { spo2: 96, hr: 81 } },
-    { date: 'Oct 15, 09:00 AM', prediction: 'Healthy Profile', severity: 'low', values: { spo2: 99, hr: 68 } },
-  ];
+  const [history, setHistory] = useState<any[]>([]);
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch(`http://127.0.0.1:5001/history`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setHistory(data.history);
+          }
+        })
+        .catch(err => console.error("Error fetching history:", err));
+    }
+  }, [currentUser.email]);
 
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">Patient Dashboard</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Welcome, {currentUser.fullName || 'Patient'}</h1>
           <p className="mt-2 text-slate-600">Review your past breath analysis results and tracking metrics.</p>
         </div>
 
@@ -29,32 +45,36 @@ export function Dashboard() {
             </h2>
           </div>
           <div className="divide-y divide-slate-100">
-            {history.map((record, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="p-6 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div>
-                  <div className="text-sm font-medium text-slate-500 mb-1">{record.date}</div>
-                  <div className={`font-semibold ${record.severity === 'low' ? 'text-green-700' : 'text-amber-600'}`}>
-                    {record.prediction}
+            {history.length === 0 ? (
+              <div className="p-6 text-center text-slate-500">No breath analysis history found. Take a test to get started!</div>
+            ) : (
+              history.map((record, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-6 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div>
+                    <div className="text-sm font-medium text-slate-500 mb-1">{record.timestamp || record.date}</div>
+                    <div className={`font-semibold ${record.prediction === 'Healthy Profile' ? 'text-green-700' : 'text-amber-600'}`}>
+                      {record.prediction}
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-6 text-sm">
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <Wind className="w-4 h-4 text-slate-400" />
-                    SpO2: <span className="font-medium text-slate-900">{record.values.spo2}%</span>
+                  <div className="flex gap-6 text-sm">
+                    <div className="flex items-center gap-1.5 text-slate-600">
+                      <Wind className="w-4 h-4 text-slate-400" />
+                      SpO2: <span className="font-medium text-slate-900">{record.values?.spo2 || '--'}%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-slate-600">
+                      <Activity className="w-4 h-4 text-slate-400" />
+                      HR: <span className="font-medium text-slate-900">{record.values?.hr || '--'}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <Activity className="w-4 h-4 text-slate-400" />
-                    HR: <span className="font-medium text-slate-900">{record.values.hr}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </div>

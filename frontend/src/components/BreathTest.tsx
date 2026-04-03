@@ -6,11 +6,11 @@ interface SensorData {
   mq3: number;
   mq135: number;
   mq138: number;
-  temperature: number;
+  temp: number;
   humidity: number;
   pressure: number;
   spo2: number;
-  heart_rate: number;
+  hr: number;
 }
 
 export function BreathTest() {
@@ -30,26 +30,30 @@ export function BreathTest() {
       mq3: 120,
       mq135: 200,
       mq138: 150,
-      temperature: 36.5,
+      temp: 36.5,
       humidity: 45,
       pressure: 1012,
       spo2: 98,
-      heart_rate: 72
+      hr: 72
     };
     
     setFinalData(data);
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/predict', {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://127.0.0.1:5001/predict', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
         body: JSON.stringify(data)
       });
       
       let resultText = "Healthy Profile";
       if (res.ok) {
         const json = await res.json();
-        resultText = json.prediction || "Healthy Profile";
+        resultText = json.prediction_text || "Healthy Profile";
         setPrediction(resultText);
         
         // Determine color/status artificially based on strings
@@ -178,7 +182,7 @@ export function BreathTest() {
                         </div>
                         <div className="bg-white/50 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                            <div className="text-xs uppercase font-bold opacity-70 mb-1 flex justify-center items-center gap-1"><Thermometer className="w-3 h-3"/> Temp</div>
-                           <div className="font-bold text-lg">{finalData.temperature}°C</div>
+                           <div className="font-bold text-lg">{finalData.temp}°C</div>
                         </div>
                         <div className="bg-white/50 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                            <div className="text-xs uppercase font-bold opacity-70 mb-1 flex justify-center items-center gap-1"><Droplets className="w-3 h-3"/> Humid</div>

@@ -71,9 +71,6 @@ export function Signup() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate network delay for premium feel
-    await new Promise(resolve => setTimeout(resolve, 800));
-
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -81,23 +78,33 @@ export function Signup() {
       return;
     }
 
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    if (existingUsers.some((u: any) => u.email === formData.email)) {
-      setError('User with this email already exists.');
+    try {
+      const response = await fetch('http://127.0.0.1:5001/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setError(result.message || 'An error occurred during signup.');
+        setIsLoading(false);
+        return;
+      }
+
+      setIsSuccess(true);
       setIsLoading(false);
-      return;
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      setError('Server not reachable. Please try again later.');
+      setIsLoading(false);
     }
-
-    const newUser = { ...formData, confirmPassword: undefined };
-    localStorage.setItem('users', JSON.stringify([...existingUsers, newUser]));
-
-    setIsSuccess(true);
-    setIsLoading(false);
-
-    // Redirect after showing success animation
-    setTimeout(() => {
-      navigate('/login');
-    }, 1500);
   };
 
   if (isSuccess) {
@@ -311,7 +318,7 @@ export function Signup() {
                 {isLoading ? (
                   <>
                     <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
-                    Processing...
+                    Connecting to server...
                   </>
                 ) : (
                   <>

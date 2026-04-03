@@ -45,16 +45,30 @@ export function Login() {
       return;
     }
 
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = existingUsers.find((u: any) => u.email === formData.email && u.password === formData.password);
+    try {
+      const response = await fetch('http://127.0.0.1:5001/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
 
-    if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setError(result.message || 'Invalid email or password.');
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('currentUser', JSON.stringify(result.user));
       navigate('/dashboard');
-    } else {
-      setError('Invalid email or password.');
+    } catch (err) {
+      console.error(err);
+      setError('Server not reachable. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -133,7 +147,7 @@ export function Login() {
                 {isLoading ? (
                   <>
                     <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
-                    Processing...
+                    Connecting to server...
                   </>
                 ) : (
                   <>
