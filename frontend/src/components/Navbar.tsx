@@ -9,11 +9,11 @@ export function Navbar({ onStartScan }: NavbarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const session = localStorage.getItem('session');
-  const isLoggedIn = !!session;
+  const currentUser = localStorage.getItem('currentUser');
+  const isLoggedIn = !!currentUser;
 
   const handleLogout = () => {
-    localStorage.removeItem('session');
+    localStorage.removeItem('currentUser');
     navigate('/login');
   };
 

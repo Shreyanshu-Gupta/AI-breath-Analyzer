@@ -7,12 +7,16 @@ import { Dashboard } from './components/Dashboard';
 import { BreathTest } from './components/BreathTest';
 import { Login } from './components/Login';
 import { Signup } from './components/Signup';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { AnimatedBackground } from './components/AnimatedBackground';
+
 
 function App() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-200">
+    <div className="min-h-screen font-sans text-slate-900 selection:bg-blue-200 relative">
+      <AnimatedBackground />
       <Navbar onStartScan={() => navigate('/test')} />
 
       <Routes>
@@ -30,18 +34,20 @@ function App() {
             </main>
           } 
         />
-        <Route 
-          path="/dashboard" 
-          element={<Dashboard />} 
-        />
-        <Route 
-          path="/test" 
-          element={
-            <div className="pt-16">
-                <BreathTest />
-            </div>
-          } 
-        />
+        <Route element={<ProtectedRoute />}>
+          <Route 
+            path="/dashboard" 
+            element={<Dashboard />} 
+          />
+          <Route 
+            path="/test" 
+            element={
+              <div className="pt-16">
+                  <BreathTest />
+              </div>
+            } 
+          />
+        </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Routes>
