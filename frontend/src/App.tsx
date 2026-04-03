@@ -8,6 +8,7 @@ import { BreathTest } from './components/BreathTest';
 import { Login } from './components/Login';
 import { Signup } from './components/Signup';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { PublicRoute } from './components/PublicRoute';
 import { AnimatedBackground } from './components/AnimatedBackground';
 
 
@@ -34,22 +35,25 @@ function App() {
             </main>
           } 
         />
+
+        {/* Protected routes — require auth */}
         <Route element={<ProtectedRoute />}>
-          <Route 
-            path="/dashboard" 
-            element={<Dashboard />} 
-          />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route 
             path="/test" 
             element={
               <div className="pt-16">
-                  <BreathTest />
+                <BreathTest />
               </div>
             } 
           />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+
+        {/* Public routes — redirect if already logged in */}
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Route>
       </Routes>
 
       {/* Footer */}

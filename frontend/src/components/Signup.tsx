@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Calendar, Activity, Wine, ArrowRight, Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from './Toast';
 
 export function Signup() {
   const navigate = useNavigate();
+  const { showToast, ToastContainer } = useToast();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -95,6 +97,7 @@ export function Signup() {
 
       setIsSuccess(true);
       setIsLoading(false);
+      showToast('Account created! Redirecting to login...', 'success');
 
       setTimeout(() => {
         navigate('/login');
@@ -110,6 +113,7 @@ export function Signup() {
   if (isSuccess) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center z-10 relative">
+        <ToastContainer />
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
