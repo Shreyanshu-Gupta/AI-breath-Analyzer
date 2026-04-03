@@ -139,7 +139,7 @@ export function Dashboard() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:5001/history', {
+      const res = await fetch('http://127.0.0.1:5000/history', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
